@@ -7,7 +7,7 @@ class CheckboxFeatureConfig(BaseModel):
     """Configuration for checkbox feature engineering."""
 
     input_field: str = Field(
-        default="checkboxes", description="Field name for checkbox interactions"
+        default="mouse_clicks", description="Field name for checkbox interactions"
     )
 
     class Config:
