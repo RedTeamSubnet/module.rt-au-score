@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.0.0 (2025-02-06)
+
+<!-- Release notes generated using configuration in .github/release.yml at v2.0.0 -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/module.rt-au-score/commits/v2.0.0
+
 ## v1.2.0 (2024-12-24)
 
 <!-- Release notes generated using configuration in .github/release.yml at v1.2.0 -->
