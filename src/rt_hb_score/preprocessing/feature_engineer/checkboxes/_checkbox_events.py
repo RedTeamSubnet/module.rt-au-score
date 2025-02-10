@@ -117,10 +117,12 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
         Returns:
             Dictionary of extracted features
         """
-        _timestamps = self._get_timestamps(clicks)
-        sorted_timestamps = sorted(_timestamps)
         features = {self.config.output_validation: False, self.config.output_main: []}
+        _timestamps = self._get_timestamps(clicks)
+        if _timestamps == 0:
+            return features
 
+        sorted_timestamps = sorted(_timestamps)
         if len(sorted_timestamps) < len(self.config.actions):
             return features
 

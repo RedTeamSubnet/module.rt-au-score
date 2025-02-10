@@ -516,3 +516,4 @@ pythonpath/
 venv-metrics
 notebooks/
 .obsidian/
+.vscode/launch.json

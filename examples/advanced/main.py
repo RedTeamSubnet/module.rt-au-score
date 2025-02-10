@@ -7,17 +7,16 @@ import logging
 from pathlib import Path
 
 from rt_hb_score import MetricsProcessor
-from rt_hb_score.config import MetricsProcessorConfig
 
 logger = logging.getLogger(__name__)
 
 argument = {
     "actions": [
-        {"id": 0, "type": "click", "args": {"location": {"x": 25, "y": 28}}},
-        {"id": 1, "type": "click", "args": {"location": {"x": 1882, "y": 18}}},
-        {"id": 2, "type": "click", "args": {"location": {"x": 26, "y": 877}}},
-        {"id": 3, "type": "click", "args": {"location": {"x": 834, "y": 565}}},
-        {"id": 4, "type": "click", "args": {"location": {"x": 865, "y": 680}}},
+        {"args": {"location": {"x": 1281, "y": 176}}, "id": 0, "type": "click"},
+        {"args": {"location": {"x": 1167, "y": 271}}, "id": 1, "type": "click"},
+        {"args": {"location": {"x": 825, "y": 220}}, "id": 2, "type": "click"},
+        {"args": {"location": {"x": 294, "y": 222}}, "id": 3, "type": "click"},
+        {"args": {"location": {"x": 59, "y": 354}}, "id": 4, "type": "click"},
     ]
 }
 if __name__ == "__main__":

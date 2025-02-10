@@ -72,7 +72,6 @@ _FIELD_MAPPING = {
     "keyboard_specificKeyEvents": ["metrics", "keyboard", "specificKeyEvents"],
     "signInButton_hoverToClickTime": ["metrics", "signInButton", "hoverToClickTime"],
     "signInButton_mouseLeaveCount": ["metrics", "signInButton", "mouseLeaveCount"],
-    "checkboxes": ["additional", "checkbox_interactions"],
 }
 
 
