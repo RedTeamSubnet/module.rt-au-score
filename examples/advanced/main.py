@@ -6,8 +6,8 @@ import json
 import logging
 from pathlib import Path
 
-from rt_au_score import MetricsProcessor
-from rt_au_score.config import MetricsProcessorConfig
+from rt_hb_score import MetricsProcessor
+from rt_hb_score.config import MetricsProcessorConfig
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logger.info("Processing metrics data...")
-    processor = MetricsProcessor(config=MetricsProcessorConfig(**argument))
+    processor = MetricsProcessor(config=argument)
     results = processor(raw_data)
 
     if not results["success"]:
