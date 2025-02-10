@@ -4,7 +4,6 @@ import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from dateutil.parser import parse
 import bisect
 from .._base import BaseFeatureEngineer
 from .config import MouseDownUpConfig
@@ -22,16 +21,20 @@ class MouseDownUpProcessor(BaseFeatureEngineer):
             mouse_downs = mouse_data.get(self.config.down_field, [])
             mouse_movement_ = mouse_data.get(self.config.mouse_movements, [])
             sorted_mouse_downs = sorted(
-                mouse_downs, key=lambda x: datetime.fromisoformat(x["timestamp"])
+                mouse_downs,
+                key=lambda x: datetime.fromisoformat(x["timestamp"].rstrip("Z")),
             )
             sorted_mouse_movements = sorted(
-                mouse_movement_, key=lambda x: datetime.fromisoformat(x["timestamp"])
+                mouse_movement_,
+                key=lambda x: datetime.fromisoformat(x["timestamp"].rstrip("Z")),
             )
             mouse_down_timestamps = [
-                datetime.fromisoformat(x["timestamp"]) for x in sorted_mouse_downs
+                datetime.fromisoformat(x["timestamp"].rstrip("Z"))
+                for x in sorted_mouse_downs
             ]
             mouse_movement_timestamps = [
-                datetime.fromisoformat(x["timestamp"]) for x in sorted_mouse_movements
+                datetime.fromisoformat(x["timestamp"].rstrip("Z"))
+                for x in sorted_mouse_movements
             ]
             results = self.find_first_gte_multiple(
                 sorted_mouse_downs,
@@ -47,7 +50,9 @@ class MouseDownUpProcessor(BaseFeatureEngineer):
             return {self.config.output_field: results}
 
         except Exception as e:
-            logger.error(f"Error processing mouse down/up events \n{self.config.output_field.upper()} NaN: {str(e)}")
+            logger.error(
+                f"Error processing mouse down/up events \n{self.config.output_field.upper()} NaN: {str(e)}"
+            )
             return {self.config.output_field: 1}
 
     def is_within_range(self, mouse_down, mouse_event, tolerance=2):
@@ -74,4 +79,4 @@ class MouseDownUpProcessor(BaseFeatureEngineer):
             ):
                 results += 1
 
-        return (results / len(query_data))
+        return results / len(query_data)
