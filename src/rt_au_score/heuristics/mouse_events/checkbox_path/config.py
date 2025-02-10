@@ -4,10 +4,14 @@ from pydantic import BaseModel, Field
 
 
 class CheckboxSequenceConfig(BaseModel):
+    input_field: str = Field(default="mouse_clicks")
+    input_main: str = Field(default="between_path")
+    input_validation: str = Field(default="is_valid")
+    input_avg_angle_degrees: str = Field(default="avg_angle_degrees")
+    input_angle_consistency: str = Field(default="angle_consistency")
+    input_straightness: str = Field(default="straightness")
+
     output_field: str = Field(default="checkbox_path_score")
-    avg_angle_degrees: str = Field(default="avg_angle_degrees")
-    angle_consistency: str = Field(default="angle_consistency")
-    straightness: str = Field(default="straightness")
 
     min_avg_angle_degrees: float = Field(
         default=0.025, description="Min average angle between movements"
@@ -29,7 +33,6 @@ class CheckboxSequenceConfig(BaseModel):
     max_straightness: float = Field(
         default=0.99, description="Threshold for suspiciously linear paths"
     )
-
 
     bot_straightness: float = Field(
         default=1.0,

@@ -17,11 +17,11 @@ class CheckboxPathSequence(BaseHeuristicCheck):
         try:
             max_suspicion_score = 0.0
             pairs_analyzed = 0
-            if features.get("is_valid"):
-                for feature in features["checkbox"]:
-                    avg_angle_degrees = feature.get(self.config.avg_angle_degrees)
-                    angle_consistency = feature.get(self.config.angle_consistency)
-                    straightness = feature.get(self.config.straightness)
+            if features.get(self.config.input_validation):
+                for feature in features[self.config.input_main]:
+                    avg_angle_degrees = feature.get(self.config.input_avg_angle_degrees)
+                    angle_consistency = feature.get(self.config.input_angle_consistency)
+                    straightness = feature.get(self.config.input_straightness)
                     if (
                         straightness == self.config.bot_straightness
                         or angle_consistency == self.config.bot_angle_consistency

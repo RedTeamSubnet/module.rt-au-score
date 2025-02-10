@@ -65,7 +65,7 @@ class HeuristicAnalyzer:
                 weight = 0.5
             weighted_sum += score * weight
             total_weight += weight
-            # print(f"{keys}: {score} * {weight} = {score * weight}, Total: {weighted_sum}")
+            logger.debug(f"{keys}: {score} * {weight} = {score * weight}, Total: {weighted_sum}")
         if total_weight == 0:
             return 0.0
 

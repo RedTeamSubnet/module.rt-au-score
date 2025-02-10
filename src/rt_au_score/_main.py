@@ -2,8 +2,8 @@ import logging
 from typing_extensions import Dict, Any, Union
 
 from .config import MetricsProcessorConfig
-from .modules.preprocessing import Preprocessor
-from .modules.heuristics import HeuristicAnalyzer
+from .preprocessing import Preprocessor
+from .heuristics import HeuristicAnalyzer
 
 logger = logging.getLogger(__name__)
 

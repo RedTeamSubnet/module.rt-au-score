@@ -1,7 +1,7 @@
 from typing_extensions import Self
 from pydantic import BaseModel, Field, model_validator
-from .modules.preprocessing import PreprocessorConfig
-from .modules.heuristics import HeuristicConfig
+from .preprocessing import PreprocessorConfig
+from .heuristics import HeuristicConfig
 
 
 class MetricsProcessorConfig(BaseModel):
@@ -22,14 +22,12 @@ class MetricsProcessorConfig(BaseModel):
         default_factory=HeuristicConfig,
         description="Configuration for heuristic analysis",
     )
-
-    class Config:
-        frozen = True
-
+    
     @model_validator(mode="after")
     def validate_after(self) -> Self:
         actions = self.model_dump()["actions"]
         self.heuristics.mouse_events.args_comparer.actions = actions
+        self.preprocessor.feature_engineer.checkbox.actions = actions
         return self
 
 

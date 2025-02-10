@@ -40,14 +40,7 @@ class MouseEventAnalyzer:
             velocity_score: dict = self.velocity_analyzer(features)
             movement_count_score: dict = self.movement_count_analyzer(features)
             checkbox_path_score: dict = self.checkbox_path_analyzer(features)
-
-            checkbox_getter = features.get("checkbox")
             mouse_down_getter = features.get(self.config.mouse_down_check, 1)
-
-            if checkbox_getter is None:
-                return {
-                    "bot_behavior": {"score": 1.0, "weight": 1.0},
-                }
             return {
                 self.config.velocity_std: {
                     "score": velocity_score.get(self.config.velocity_std, 1.0),

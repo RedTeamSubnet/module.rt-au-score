@@ -1,8 +1,7 @@
 """Checkbox event feature engineering."""
 
 import logging
-import pprint
-from typing import Dict, List, Any, Optional
+from typing_extensions import Dict, List, Any, Optional, IntVar
 import numpy as np
 from dateutil.parser import parse
 from .._base import BaseFeatureEngineer
@@ -39,6 +38,7 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
         except Exception as e:
             logger.warning(f"Error processing checkbox events: {str(e)}")
             return {}
+
     def _calculate_path_linearity(
         self, path: List[Dict[str, Any]]
     ) -> tuple[float, float]:
@@ -89,11 +89,10 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
         # Safely calculate angle consistency
         if angles:  # Check if angles list is not empty
             angle_consistency = 1 - (np.mean(angles) / np.pi)
-            avg_angle = (np.mean(angles) / np.pi)
+            avg_angle = np.mean(angles) / np.pi
         else:
             angle_consistency = 1.0
             avg_angle = 0.0
-
 
         # Calculate straightness with safety check
         total_segment_length = sum(
@@ -105,12 +104,10 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
         else:
             straightness = 1.0
 
-
-
         return angle_consistency, straightness, avg_angle
 
     def _process_checkbox_sequence(
-        self, checkboxes: List[Dict], mouse_movements: List[Dict]
+        self, clicks: List[Dict], mouse_movements: List[Dict]
     ) -> Dict[str, Any]:
         """Process sequence of checkbox interactions.
         Args:
@@ -120,17 +117,19 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
         Returns:
             Dictionary of extracted features
         """
-        sorted_checkboxes = sorted(checkboxes, key=lambda x: parse(x["timestamp"]))
-        features = {"is_valid": False, "checkbox": []}
-        if len(sorted_checkboxes) < 3:
-            return features
-        for i in range(len(sorted_checkboxes) - 1):
-            checkbox = {}
-            current = sorted_checkboxes[i]
-            next_cb = sorted_checkboxes[i + 1]
+        _timestamps = self._get_timestamps(clicks)
+        sorted_timestamps = sorted(_timestamps)
+        features = {self.config.output_validation: False, self.config.output_main: []}
 
-            t1 = parse(current["timestamp"])
-            t2 = parse(next_cb["timestamp"])
+        if len(sorted_timestamps) < len(self.config.actions):
+            return features
+
+        for i in range(len(sorted_timestamps) - 1):
+            clicks_data = {}
+            current = sorted_timestamps[i]
+            next_cb = sorted_timestamps[i + 1]
+            t1 = parse(current)
+            t2 = parse(next_cb)
 
             movements_between = [
                 m for m in mouse_movements if t1 <= parse(m["timestamp"]) <= t2
@@ -148,16 +147,49 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
                     1.0,
                     1.0,
                     0.0,
-                )  # Default to 1 if no movements and 0 to no angles
-
-            checkbox.update(
-                    {
-                        "avg_angle_degrees": avg_angle_degrees,
-                        "angle_consistency":angle_consistency,
-                        "straightness":straightness,
-                    }
                 )
-            logger.debug(f"Checkbox:\n\n {checkbox}\n\n")
-            features["checkbox"].append(checkbox)
-            features["is_valid"] = True
+
+            clicks_data.update(
+                {
+                    self.config.output_avg_angle_degrees: avg_angle_degrees,
+                    self.config.output_angle_consistency: angle_consistency,
+                    self.config.output_straightness: straightness,
+                }
+            )
+            logger.debug(f"Checkbox:\n\n {clicks_data}\n\n")
+            features[self.config.output_main].append(clicks_data)
+            features[self.config.output_validation] = True
         return features
+
+    def _get_timestamps(self, clicks: List[Dict]) -> List[str]:
+        """Extract timestamps from list of checkbox interactions."""
+        sorted_user_clicks = sorted(clicks, key=lambda x: x["timestamp"])
+        given_clicks = [
+            location["args"]["location"]
+            for location in self.config.actions
+            if location.get("type") == self.config.type
+        ]
+        within_clicks = []
+        for click in given_clicks:
+            matched_click = next(
+                (
+                    user_click
+                    for user_click in sorted_user_clicks
+                    if self._is_within(user_click, click, self.config.tolerance)
+                ),
+                None,
+            )
+            if matched_click:
+                within_clicks.append(matched_click)
+        if len(within_clicks) != len(given_clicks):
+            return 0
+        return [click["timestamp"] for click in within_clicks]
+
+    def _is_within(
+        self, user_click: Dict[str, Any], click: Dict[str, Any], tolerance: IntVar = 2
+    ) -> bool:
+        truth_value = (
+            abs(user_click["x"] - click["x"]) <= tolerance
+            and abs(user_click["y"] - click["y"]) <= tolerance
+        )
+        return truth_value
