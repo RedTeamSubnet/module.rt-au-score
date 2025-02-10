@@ -2,8 +2,6 @@
 
 import logging
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
-
 
 import numpy as np
 from dateutil.parser import parse
@@ -32,12 +30,6 @@ class MouseMovementProcessor(BaseFeatureEngineer):
             velocity_avg = np.average(velocities) if velocities else 0
             px_ms = self.detect_bot_movements(mouse_movement_data, click_data)
             mouse_movment_count = len(mouse_movement_data)
-            logger.debug(
-                f"Velocity analysis finished: \n\n{self.config.velocity_std.upper()}: {velocity_std}, \
-                  \n{self.config.velocity_avg.upper()} {velocity_avg},\
-                  \n{self.config.pixel_per_movement.upper()} {px_ms},\
-                  \n{self.config.movement_cont.upper()} {mouse_movment_count}\n\n"
-            )
             return {
                 self.config.velocity_std: velocity_std,
                 self.config.velocity_avg: velocity_avg,
@@ -62,7 +54,7 @@ class MouseMovementProcessor(BaseFeatureEngineer):
                 return float(timestamp_str)
             return parse(timestamp_str).timestamp()
         except (ValueError, TypeError) as e:
-            logger.error(f"Error parsing timestamp {timestamp_str}: {str(e)}")
+            logger.error(f"Error parsing timestamp : {str(e)}")
             return np.nan
 
     def _compute_velocity(self, mouse_movements: List[Dict]) -> List[float]:
@@ -122,9 +114,7 @@ class MouseMovementProcessor(BaseFeatureEngineer):
     def load_mouse_data(self, mouse_movements: List[Dict]) -> List[Dict]:
 
         mouse_movements.sort(
-            key=lambda point: datetime.fromisoformat(
-                point.get(self.config.fields["timestamp"]).replace("Z", "")
-            )
+            key=lambda point: parse(point.get(self.config.fields["timestamp"]))
         )
         return mouse_movements
 
@@ -172,7 +162,7 @@ class MouseMovementProcessor(BaseFeatureEngineer):
             or len(mouse_movements) == 0
             or len(click_data) >= len(mouse_movements)
         ):
-            logger.warning("No mouse movements or exactly bot-like behavior")
+            logger.warning("No mouse movements or exactly bot-like behavior. Not enough movements or ...")
             return 0
         mouse_movements = self.load_mouse_data(mouse_movements)
 

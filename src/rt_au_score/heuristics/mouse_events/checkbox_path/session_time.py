@@ -30,5 +30,5 @@ class SessionTimeAnalyze(BaseHeuristicCheck):
             )
             return score
         except Exception as e:
-            logger.error(f"Error in checkbox path analysis: {str(e)}", exc_info=True)
+            logger.error(f"Error in check path analysis: {str(e)}", exc_info=True)
             return 1.0

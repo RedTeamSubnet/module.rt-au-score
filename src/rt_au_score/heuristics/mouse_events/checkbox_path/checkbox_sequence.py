@@ -60,7 +60,7 @@ class CheckboxPathSequence(BaseHeuristicCheck):
                 return 1.0
 
         except Exception as e:
-            logger.error(f"Error in checkbox path analysis: {str(e)}")
+            logger.error(f"Error in check path analysis: {str(e)}")
             return 0.0
 
     def _analyze_angle_consistency(self, angle_consistency_value: float) -> float:

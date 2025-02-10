@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 argument = {
     "actions": [
-        {"id": 0, "type": "click", "args": {"location": {"x": 768, "y": 486}}},
-        {"id": 1, "type": "click", "args": {"location": {"x": 68, "y": 260}}},
-        {"id": 2, "type": "click", "args": {"location": {"x": 79, "y": 625}}},
-        {"id": 3, "type": "click", "args": {"location": {"x": 603, "y": 187}}},
-        {"id": 4, "type": "click", "args": {"location": {"x": 1320, "y": 91}}},
+        {"id": 0, "type": "click", "args": {"location": {"x": 25, "y": 28}}},
+        {"id": 1, "type": "click", "args": {"location": {"x": 1882, "y": 18}}},
+        {"id": 2, "type": "click", "args": {"location": {"x": 26, "y": 877}}},
+        {"id": 3, "type": "click", "args": {"location": {"x": 834, "y": 565}}},
+        {"id": 4, "type": "click", "args": {"location": {"x": 865, "y": 680}}},
     ]
 }
 if __name__ == "__main__":

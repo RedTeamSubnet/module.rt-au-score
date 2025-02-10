@@ -43,7 +43,6 @@ class FeatureEngineer:
             Dictionary containing engineered features
         """
         try:
-            logger.info("Processing mouse features")
             mouse_movement_results = self.mouse_movement_processor(
                 data.get(self.config.mouse_movement.input_field, []),
                 data.get(self.config.mouse_movement.click_field, []),
@@ -53,12 +52,9 @@ class FeatureEngineer:
             #     for field_name, field_path in self.config.keyboard.input_fields.items()
             # }
             # keyboard_results = self.keyboard_processor(keyboard_data)
-            logger.info("Processing checkbox features")
             checkbox_results = self.checkbox_processor(data)
-            logger.info("Processing mouse down & ups features")
             mouse_down_up_results = self.mouse_down_up_processor(data)
             session_results = self.session_processor(data)
-            logger.info("Finished Feature Engineering")
             return {
                 **mouse_movement_results,
                 **mouse_down_up_results,

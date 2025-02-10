@@ -39,7 +39,7 @@ class CheckboxPathAnalyzer(BaseHeuristicCheck):
                 self.config.session_time.session_time: session_time_score
             }
         except Exception as e:
-            logger.error(f"Error in checkbox path analysis: {str(e)}", exc_info=True)
+            logger.error(f"Error in check path analysis: {str(e)}", exc_info=True)
             return {
                 self.config.checkbox_sequence.output_field: 1,
                 self.config.session_time.session_time: 1

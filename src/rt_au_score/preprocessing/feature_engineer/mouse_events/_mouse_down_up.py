@@ -2,7 +2,6 @@
 
 import logging
 from typing import Dict, List, Any, Optional
-from datetime import datetime
 
 from dateutil.parser import parse
 import bisect
@@ -23,18 +22,18 @@ class MouseDownUpProcessor(BaseFeatureEngineer):
             mouse_movement_ = mouse_data.get(self.config.mouse_movements, [])
             sorted_mouse_downs = sorted(
                 mouse_downs,
-                key=lambda x: datetime.fromisoformat(x["timestamp"].rstrip("Z")),
+                key=lambda x: parse(x["timestamp"]),
             )
             sorted_mouse_movements = sorted(
                 mouse_movement_,
-                key=lambda x: datetime.fromisoformat(x["timestamp"].rstrip("Z")),
+                key=lambda x: parse(x["timestamp"]),
             )
             mouse_down_timestamps = [
-                datetime.fromisoformat(x["timestamp"].rstrip("Z"))
+                parse(x["timestamp"])
                 for x in sorted_mouse_downs
             ]
             mouse_movement_timestamps = [
-                datetime.fromisoformat(x["timestamp"].rstrip("Z"))
+                parse(x["timestamp"])
                 for x in sorted_mouse_movements
             ]
             results = self.find_first_gte_multiple(
@@ -43,16 +42,13 @@ class MouseDownUpProcessor(BaseFeatureEngineer):
                 sorted_mouse_movements,
                 mouse_movement_timestamps,
             )
-            logger.debug(
-                f"Mouse down/up analysis finished: \n\n{self.config.output_field.upper()}: {results}\n\n"
-            )
             if results > 0:
                 results = 1
             return {self.config.output_field: results}
 
         except Exception as e:
             logger.error(
-                f"Error processing mouse down/up events \n{self.config.output_field.upper()} NaN: {str(e)}"
+                f"Error processing pixel per movement events \n{self.config.output_field.upper()} NaN: {str(e)}"
             )
             return {self.config.output_field: 1}
 

@@ -2,7 +2,8 @@
 
 import logging
 from typing import Dict, List, Optional
-from datetime import datetime
+from dateutil.parser import parse
+
 
 from .._base import BaseFeatureEngineer
 from .config import SessionConfig
@@ -30,21 +31,17 @@ class SessionProcessor(BaseFeatureEngineer):
             mouse_events = data.get(self.config.input_field, [])
 
             if not mouse_events:
-                logger.warning("No session events found")
                 return {
                     self.config.output_filed: 0
                 }  # Return 0 if no session events are found
 
             sorted_mouse_events = sorted(
-                mouse_events, key=lambda x: datetime.fromisoformat(x["timestamp"])
+                mouse_events, key=lambda x: parse(x["timestamp"])
             )
             session_time = (
-                datetime.fromisoformat(sorted_mouse_events[-1]["timestamp"])
-                - datetime.fromisoformat(sorted_mouse_events[0]["timestamp"])
+                parse(sorted_mouse_events[-1]["timestamp"])
+                - parse(sorted_mouse_events[0]["timestamp"])
             ).total_seconds()
-            logger.debug(
-                f"Computing session time finished: \n\n{self.config.output_filed.upper()}: {session_time}\n\n"
-            )
             return {self.config.output_filed: session_time}
         except Exception as e:
             logger.warning(

@@ -27,7 +27,10 @@ class MovementCountAnalyzer(BaseHeuristicCheck):
                 pixel_count < self.config.min_pixel_count_too_low
                 or movement_count < self.config.min_movement_count_too_low
             ):
-                return 1.0
+                return {
+                self.config.pixel_per_movement: 1,
+                self.config.mouse_movement_count: 1,
+            }
             score_pixel = self.scoring_function(
                 value=pixel_count,
                 min_value=self.config.min_pixel_count,
@@ -52,7 +55,7 @@ class MovementCountAnalyzer(BaseHeuristicCheck):
                 self.config.mouse_movement_count: score_movement,
             }
         except Exception as e:
-            logger.error(f"Error in movement count analysis: {str(e)}")
+            logger.error(f"Error in check movement count analysis: {str(e)}")
             return {
                 self.config.pixel_per_movement: 1,
                 self.config.mouse_movement_count: 1,

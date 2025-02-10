@@ -27,16 +27,16 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
             Dictionary containing extracted features
         """
         try:
-            checkboxes = data.get(self.config.input_field, [])
+            clicks = data.get(self.config.input_field, [])
             mouse_movements = data.get("mouse_movements", [])
-            if not checkboxes:
-                logger.warning("No checkbox events found")
+            if not clicks:
+                logger.warning("No click events found")
                 return {}
 
-            return self._process_checkbox_sequence(checkboxes, mouse_movements)
+            return self._process_checkbox_sequence(clicks, mouse_movements)
 
         except Exception as e:
-            logger.warning(f"Error processing checkbox events: {str(e)}")
+            logger.warning(f"Error processing click events: {str(e)}")
             return {}
 
     def _calculate_path_linearity(
@@ -44,7 +44,7 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
     ) -> tuple[float, float]:
         # Need at least 5 points for the new calculation method
         if len(path) < 5:
-            return 1.0, 0.0
+            return 1.0, 1.0, 0.0
         points = np.array([[p["x"], p["y"]] for p in path])
 
         # Calculate angles between consecutive segments using 5 points
@@ -76,7 +76,7 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
         path_length = np.linalg.norm(path_vector)
 
         if path_length < 1e-10:  # Add small threshold
-            return 0.0, 0.0
+            return 1,1,0
 
         distances = []
         for point in points[1:-1]:
@@ -156,7 +156,6 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
                     self.config.output_straightness: straightness,
                 }
             )
-            logger.debug(f"Checkbox:\n\n {clicks_data}\n\n")
             features[self.config.output_main].append(clicks_data)
             features[self.config.output_validation] = True
         return features

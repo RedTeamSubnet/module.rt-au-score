@@ -36,7 +36,6 @@ class Preprocessor:
         """
         try:
             # Step 1: Flatten the data
-            logger.info("Flattening input data...")
             flattened_data = self.flattener(data)
 
             if flattened_data is None:
@@ -44,7 +43,6 @@ class Preprocessor:
                 return None
 
             # Step 2: Engineer features
-            logger.info("Engineering features...")
             features = self.feature_engineer(flattened_data)
 
             if not features:

@@ -1,6 +1,8 @@
+
 from .config import ArgCompareConfig
 from typing_extensions import Union, Dict, Any, IntVar
 import logging
+from dateutil.parser import parse
 
 logger = logging.getLogger(__name__)
 
@@ -11,18 +13,17 @@ class ArgCompare:
 
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         try:
-            logger.info("Comparing the data")
             result = self._check_clicks(data)
 
             return result
         except Exception as e:
-            logger.error(f"Error during preprocessing: {str(e)}", exc_info=True)
+            logger.error(f"Error in check mouse event compare: {str(e)}", exc_info=True)
             return 0
 
     def _check_clicks(self, data: Dict[str, Any]) -> int:
         user_clicks = data.get(self.config.mouse_clicks, [])
 
-        sorted_user_clicks = sorted(user_clicks, key=lambda x: x["timestamp"])
+        sorted_user_clicks = sorted(user_clicks, key=lambda x: parse(x["timestamp"]))
         clicks = [
             location["args"]["location"]
             for location in self.config.actions

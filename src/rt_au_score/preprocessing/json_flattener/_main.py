@@ -26,15 +26,11 @@ class JsonDataFlattener(BasePreprocessor):
         try:
             if isinstance(data, str):
                 data = json.loads(data)
-                logger.debug("Successfully parsed JSON string")
 
             if self.config.is_validate:
                 parsed_data = self.config.input_data.model_validate(data).model_dump()
-                logger.debug("Successfully validated input data")
             else:
                 parsed_data = data
-
-            logger.debug("Starting metrics extraction")
             self._flattened_data = self._extract_metrics(parsed_data)
             return self._flattened_data
 
@@ -46,14 +42,13 @@ class JsonDataFlattener(BasePreprocessor):
         self, data: Dict[str, Any], path: List[str], field_name: str
     ) -> Any:
         """Get value from nested dictionary using path."""
-        logger.debug(f"Getting value for {field_name} using path {path}")
         try:
             current = data
             for key in path:
                 current = current[key]
             return current
         except (KeyError, TypeError) as e:
-            logger.debug(f"Failed to get value for {field_name}: {str(e)}")
+            logger.error(f"Failed to get value for {field_name}: {str(e)}")
             return []
 
     def _extract_metrics(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -64,7 +59,6 @@ class JsonDataFlattener(BasePreprocessor):
                 try:
                     value = self._get_nested_value(data, path, field_name)
                     flattened[field_name] = value
-                    logger.debug(f"Successfully extracted {field_name}")
                 except Exception as e:
                     logger.error(f"Error extracting {field_name}: {str(e)}")
                     raise

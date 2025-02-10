@@ -51,7 +51,7 @@ class VelocityAnalyzer(BaseHeuristicCheck):
             }
 
         except Exception as e:
-            logger.error(f"Error in velocity analysis: {str(e)}")
+            logger.error(f"Error in  check velocity analysis: {str(e)}")
             return {
                 self.config.velocity_std: 1,
                 self.config.velocity_avg: 1,

@@ -33,7 +33,7 @@ class MouseEventAnalyzer:
         try:
             arg_score = self.args_comparer(features)
             if arg_score == 0:
-                logger.info("Bot did not complied")
+                logger.warning("Bot did not clicked to all given locations")
                 return {
                     "bot_behavior": {"score": 1.0, "weight": 1.0},
                 }
@@ -60,10 +60,6 @@ class MouseEventAnalyzer:
                     ),
                     "weight": self.config.movement_count_weight,
                 },
-                # self.config.session_time: {
-                #     "score": checkbox_path_score.get(self.config.session_time, 1.0),
-                #     "weight": self.config.session_time_weight,
-                # },
                 self.config.checkbox_path_score: {
                     "score": checkbox_path_score.get(
                         self.config.checkbox_path_score, 1.0
@@ -77,7 +73,7 @@ class MouseEventAnalyzer:
             }
 
         except Exception as e:
-            logger.error(f"Error in mouse event analysis: {str(e)}")
+            logger.error(f"Error in checking mouse event analysis: {str(e)}")
             return {
                 "error_score": {"score": 1.0, "weight": 1.0},
             }

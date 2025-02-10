@@ -31,10 +31,8 @@ class HeuristicAnalyzer:
             Dictionary containing detection results and scores
         """
         try:
-            logger.info("Analyzing mouse events")
             mouse_scores = self.mouse_analyzer(features)
             final_score = round(1 - self._calculate_final_score(mouse_scores), 5)
-            logger.info("Finished heuristic analysis.")
             return {
                 "score": final_score,
             }
@@ -65,7 +63,7 @@ class HeuristicAnalyzer:
                 weight = 0.5
             weighted_sum += score * weight
             total_weight += weight
-            logger.debug(f"{keys}: {score} * {weight} = {score * weight}, Total: {weighted_sum}")
+            logger.debug(f"{keys}: {score} (weight: {weight})")
         if total_weight == 0:
             return 0.0
 
