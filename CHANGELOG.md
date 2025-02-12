@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.1.0 (2025-02-12)
+
+<!-- Release notes generated using configuration in .github/release.yml at v3.1.0 -->
+
+
+
+**Full Changelog**: https://github.com/RedTeamSubnet/module.rt-hb-score/compare/v3.0.1...v3.1.0
+
 ## v3.0.1 (2025-02-10)
 
 <!-- Release notes generated using configuration in .github/release.yml at v3.0.1 -->
