@@ -7,6 +7,7 @@ from .movement_count import MovementCountConfig
 from .checkbox_path import CheckboxPathConfig
 from .compare import ArgCompareConfig
 
+
 class MouseEventConfig(BaseModel):
     """Configuration for mouse event analysis."""
 
@@ -19,6 +20,7 @@ class MouseEventConfig(BaseModel):
     velocity_avg: str = Field(default="mouse_movement_avg_velocity")
     distance_count: str = Field(default="pixel_per_movement")
     mouse_movement_count: str = Field(default="mouse_movement_count")
+    overall_session_angle_std: str = Field(default="overall_session_angle_std")
     session_time: str = Field(default="session_time")
     checkbox_path_score: str = Field(default="checkbox_path_score")
     mouse_down_check: str = Field(default="mouse_down_up_features")
@@ -39,10 +41,13 @@ class MouseEventConfig(BaseModel):
         default_factory=ArgCompareConfig,
         description="Arguments comparer configuration",
     )
-    velocity_std_weight: float = Field(default=0.5)
-    velocity_avg_weight: float = Field(default=0.5)
+    velocity_std_weight: float = Field(default=1)
+    velocity_avg_weight: float = Field(default=1)
     distance_weight: float = Field(default=2)
     movement_count_weight: float = Field(default=1)
     session_time_weight: float = Field(default=2)
     checkbox_path_weight: float = Field(default=3)
     mouse_down_weight: float = Field(default=3)
+    overall_session_angle_std_weight: float = Field(default=1)
+
+    mouse_movements_very_low:int = Field(default=50)

@@ -517,3 +517,4 @@ venv-metrics
 notebooks/
 .obsidian/
 .vscode/launch.json
+docs/

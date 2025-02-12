@@ -48,8 +48,10 @@ class ArgCompare:
         for index, user_click in enumerate(within_clicks):
             if not self._is_within(user_click, clicks[index], self.config.tolerance):
                 number_clicks -= 1
+                logger.warning(f"Click {index} was clicked but in wrong order")
+                return 0    
             else:
-                logger.info(f"Click {index} matched with given coordinates")
+                logger.debug(f"Click {index} matched with given coordinates")
 
         if number_clicks:
             return 1

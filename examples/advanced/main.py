@@ -45,8 +45,24 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logger.info("Processing metrics data...")
-    processor = MetricsProcessor(config=argument)
-    results = processor(raw_data)
+    # Process all json files starting with 'iw'
+    raw_files = list(_data_dir_path.glob('raw/iw*.json'))
+
+    for raw_file in raw_files:
+        try:
+            print(f"\n{raw_file}")
+            with open(raw_file, "r") as f:
+                raw_data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in file {raw_file}: {e}")
+            continue
+        except FileNotFoundError:
+            logger.error(f"File not found: {raw_file}")
+            continue
+
+        processor = MetricsProcessor(config=argument)
+        results = processor(raw_data)
+
 
     if not results["success"]:
         logger.error(f"Processing failed at {results['stage']}: {results['error']}")

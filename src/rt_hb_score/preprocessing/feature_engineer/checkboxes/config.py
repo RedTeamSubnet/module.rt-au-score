@@ -9,8 +9,9 @@ class CheckboxFeatureConfig(BaseModel):
     input_field: str = Field(default="mouse_clicks")
     output_validation: str = Field(default="is_valid")
     output_avg_angle_degrees: str = Field(default="avg_angle_degrees")
-    output_angle_consistency: str = Field(default="angle_consistency")
+    output_angle_std: str = Field(default="angle_std")
     output_straightness: str = Field(default="straightness")
+    output_angular_consistency:str = Field(default="angular_consistency")
     output_main: str = Field(default="between_path")
 
     type: str = Field(default="click", description="Type of event")
@@ -18,13 +19,14 @@ class CheckboxFeatureConfig(BaseModel):
     metrics: dict[str, dict] = Field(
         default={"location": {"x": "x", "y": "y"}}, description="Metrics for location"
     )
-    tolerance: int = Field(default=15, description="Tolerance for location matching")
+    tolerance: float = Field(default=15, description="Tolerance for location matching")
     actions: list[dict] = Field(
         default=[
             {"id": "1", "type": "click", "args": {"location": {"x": 100, "y": 200}}},
         ],
         description="List of actions to be performed in the pipeline",
     )
+
 
 class SessionConfig(BaseModel):
     """Configuration for checkbox feature engineering."""

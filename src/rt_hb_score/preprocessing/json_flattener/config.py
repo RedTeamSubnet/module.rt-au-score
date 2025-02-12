@@ -14,8 +14,8 @@ class ExtraBaseModel(BaseModel):
 
 class MouseMovement(BaseModel):
     """ Mouse movement data."""
-    x: int
-    y: int
+    x: float
+    y: float
     timestamp: str
 
 
@@ -38,7 +38,7 @@ class KeyboardMetrics(BaseModel):
 class SignInButtonMetrics(BaseModel):
     """ Sign-in button metrics data."""
     hoverToClickTime: Optional[float] = None
-    mouseLeaveCount: int = 0
+    mouseLeaveCount: float = 0
 
 
 class Metrics(BaseModel):

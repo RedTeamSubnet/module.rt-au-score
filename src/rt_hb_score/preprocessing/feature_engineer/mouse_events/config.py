@@ -10,7 +10,7 @@ class MouseMovementProcessingConfig(BaseModel):
     click_field: str = Field(
         default="mouse_clicks", description="Field name for mouse movement data"
     )
-    min_movements_required: int = Field(
+    min_movements_required: float = Field(
         default=10,
         description="Minimum number of movements required to compute velocity",
     )
@@ -34,6 +34,10 @@ class MouseMovementProcessingConfig(BaseModel):
         default="mouse_movement_count",
         description="Number of mouse movements. Abnormal if too low or too high",
     )
+    mouse_angle_std: str = Field(
+        default="overall_session_angle_std",
+        description="Number of mouse movements. Abnormal if too low or too high",
+    )
 
     class Config:
         """Pydantic configuration."""
@@ -47,7 +51,7 @@ class MouseDownUpConfig(BaseModel):
     down_field: str = Field(default="mouse_mouseDowns")
     mouse_movements: str = Field(default="mouse_movements")
 
-    within_tolerance: int = Field(default=2)
+    within_tolerance: float = Field(default=2)
     output_field: str = Field(
         default="mouse_down_up_features",
         description="Field name for the extracted features",

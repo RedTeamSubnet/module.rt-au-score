@@ -19,59 +19,60 @@ class CheckboxPathSequence(BaseHeuristicCheck):
             pairs_analyzed = 0
             if features.get(self.config.input_validation):
                 for feature in features[self.config.input_main]:
-                    avg_angle_degrees = feature.get(self.config.input_avg_angle_degrees)
-                    angle_consistency = feature.get(self.config.input_angle_consistency)
+                    angle_std = feature.get(self.config.input_angle_std)
                     straightness = feature.get(self.config.input_straightness)
+                    angular_consistency = feature.get(
+                        self.config.input_angular_consistency
+                    )
                     if (
                         straightness == self.config.bot_straightness
-                        or angle_consistency == self.config.bot_angle_consistency
-                        or avg_angle_degrees == self.config.bot_avg_angle
+                        or angle_std == self.config.bot_angle_std
+                        or angular_consistency == self.config.bot_angular_consistency
                     ):
                         max_suspicion_score == 1
                         continue
 
                     if all(
                         v is not None
-                        for v in [angle_consistency, straightness, avg_angle_degrees]
+                        for v in [angle_std, straightness, angular_consistency]
                     ):
-                        angle_consistency_score = self._analyze_angle_consistency(
-                            angle_consistency
-                        )
+                        angle_std_score = self._analyze_angle_std(angle_std)
                         straightness_score = self._analyze_straightness(straightness)
-                        avg_angle_score = self._analyze_avg_angle(avg_angle_degrees)
+                        angular_consistency_score = self._analyze_angular_consistency(
+                            angular_consistency
+                        )
 
                         pair_score = (
-                            (
-                                self.config.weight_angle_consistency
-                                * angle_consistency_score
-                            )
+                            (self.config.weight_angle_std * angle_std_score)
                             + (self.config.weight_straightness * straightness_score)
-                            + (self.config.weight_avg_angle * avg_angle_score)
+                            + (
+                                self.config.weight_angular_consistency
+                                * angular_consistency_score
+                            )
                         )
-
                         max_suspicion_score = max(max_suspicion_score, pair_score)
+                        pairs_analyzed += 1
 
                 if pairs_analyzed == 0:
                     return 1.0
 
                 return min(1.0, max_suspicion_score)
             else:
-
                 return 1.0
 
         except Exception as e:
             logger.error(f"Error in check path analysis: {str(e)}")
             return 0.0
 
-    def _analyze_angle_consistency(self, angle_consistency_value: float) -> float:
+    def _analyze_angle_std(self, angle_consistency_value: float) -> float:
         score = self.scoring_function(
             value=angle_consistency_value,
-            min_value=self.config.min_angle_consistency,
-            max_value=self.config.max_angle_consistency,
-            min_score=0.8,
-            max_score=0.5,
-            min_of_min=0.65,  # min_linearity_threshold(0.75) * 0.6  = 0.45
-            max_of_max=1.04,  # max_linearity_threshold(0.95) * 1.04 = 0.988
+            min_value=self.config.min_angle_std,
+            max_value=self.config.max_angle_std,
+            min_score=0.9,
+            max_score=0.7,
+            min_of_min=0.91,
+            max_of_max=1.18,
         )
 
         return self.clamp_score_zero_to_one(score)
@@ -81,22 +82,23 @@ class CheckboxPathSequence(BaseHeuristicCheck):
             value=straightness_value,
             min_value=self.config.min_straightness,
             max_value=self.config.max_straightness,
-            min_score=0.8,
-            max_score=0.5,
-            min_of_min=0.6,
-            max_of_max=1.03,
+            min_score=0.6,
+            max_score=0.9,
+            min_of_min=0.8211,
+            max_of_max=1.00922431,
         )
 
         return self.clamp_score_zero_to_one(score)
 
-    def _analyze_avg_angle(self, avf_angle_value: float) -> float:
+    def _analyze_angular_consistency(self, angular_consistency: float) -> float:
         score = self.scoring_function(
-            value=avf_angle_value,
-            min_value=self.config.min_avg_angle_degrees,
-            max_value=self.config.max_avg_angle_degrees,
-            min_score=0.5,
-            max_score=0.8,
-            min_of_min=0.5,
-            max_of_max=1.5,
+            value=angular_consistency,
+            min_value=self.config.min_angular_consistency,
+            max_value=self.config.max_angular_consistency,
+            min_score=0.8,
+            max_score=0.5,
+            min_of_min=0.9472,
+            max_of_max=1.02239035,
         )
+
         return self.clamp_score_zero_to_one(score)

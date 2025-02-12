@@ -1,6 +1,7 @@
 """Checkbox event feature engineering."""
 
 import logging
+from math import pi
 from typing_extensions import Dict, List, Any, Optional, IntVar
 import numpy as np
 from dateutil.parser import parse
@@ -44,11 +45,15 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
     ) -> tuple[float, float]:
         # Need at least 5 points for the new calculation method
         if len(path) < 5:
-            return 1.0, 1.0, 0.0
-        points = np.array([[p["x"], p["y"]] for p in path])
+            return 1.0, 1.0, 1.0
 
-        # Calculate angles between consecutive segments using 5 points
-        angles = []
+        points = np.array([[p["x"], p["y"]] for p in path])
+        _x_points = points[:, 0]
+        _y_points = points[:, 1]
+
+        angles = np.arctan2(_y_points, _x_points) * 180 / np.pi
+
+        angles_1 = []
         for i in range(len(points) - 2):
             p1, p2, p3 = points[i : i + 3]
 
@@ -62,49 +67,33 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
 
             if norms > 0:
                 cos_angle = dot_product / norms
-                # Ensure cos_angle is within [-1, 1] to avoid numerical errors
+                # Ensure cos_ancgle is within [-1, 1] to avoid numerical errors
                 cos_angle = min(1, max(-1, cos_angle))
                 angle = np.arccos(cos_angle)
-                angles.append(abs(angle))
-            else:
-                angles.append(1.0)
+                angles_1.append(abs(angle))
 
-        # Calculate point-to-line distances
+        if angles_1:
+            angle_consistency = 1 - (np.mean(angles_1) / np.pi)
+
         start_point = points[0]
         end_point = points[-1]
         path_vector = end_point - start_point
         path_length = np.linalg.norm(path_vector)
+        if path_length < 1e-10:
+            return 1, 1, 1
 
-        if path_length < 1e-10:  # Add small threshold
-            return 1,1,0
-
-        distances = []
-        for point in points[1:-1]:
-            v = point - start_point
-            proj = np.dot(v, path_vector) / path_length
-            parallel_point = start_point + (proj / path_length) * path_vector
-            distance = np.linalg.norm(point - parallel_point)
-            distances.append(distance)
-
-        # Safely calculate angle consistency
-        if angles:  # Check if angles list is not empty
-            angle_consistency = 1 - (np.mean(angles) / np.pi)
-            avg_angle = np.mean(angles) / np.pi
-        else:
-            angle_consistency = 1.0
-            avg_angle = 0.0
-
+        angle_std = np.nanstd(angles)
         # Calculate straightness with safety check
         total_segment_length = sum(
             np.linalg.norm(points[i + 1] - points[i]) for i in range(len(points) - 1)
         )
 
-        if total_segment_length > 1e-10:  # Add small threshold
+        if total_segment_length > 1e-10:
             straightness = path_length / total_segment_length
         else:
             straightness = 1.0
 
-        return angle_consistency, straightness, avg_angle
+        return angle_std, straightness, angle_consistency
 
     def _process_checkbox_sequence(
         self, clicks: List[Dict], mouse_movements: List[Dict]
@@ -136,26 +125,25 @@ class CheckboxEventProcessor(BaseFeatureEngineer):
             movements_between = [
                 m for m in mouse_movements if t1 <= parse(m["timestamp"]) <= t2
             ]
-
             if movements_between:
                 sorted_movements = sorted(
                     movements_between, key=lambda x: parse(x["timestamp"])
                 )
-                angle_consistency, straightness, avg_angle_degrees = (
-                    self._calculate_path_linearity(sorted_movements)
+                angle_std, straightness,angular_consistency = self._calculate_path_linearity(
+                    sorted_movements
                 )
             else:
-                angle_consistency, straightness, avg_angle_degrees = (
+                angle_std, straightness,angular_consistency = (
                     1.0,
                     1.0,
-                    0.0,
+                    1.0,
                 )
 
             clicks_data.update(
                 {
-                    self.config.output_avg_angle_degrees: avg_angle_degrees,
-                    self.config.output_angle_consistency: angle_consistency,
+                    self.config.output_angle_std: angle_std,
                     self.config.output_straightness: straightness,
+                    self.config.output_angular_consistency: angular_consistency,
                 }
             )
             features[self.config.output_main].append(clicks_data)

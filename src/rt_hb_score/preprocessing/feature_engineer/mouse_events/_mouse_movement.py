@@ -29,12 +29,15 @@ class MouseMovementProcessor(BaseFeatureEngineer):
             velocity_std = np.std(velocities) if velocities else 0
             velocity_avg = np.average(velocities) if velocities else 0
             px_ms = self.detect_bot_movements(mouse_movement_data, click_data)
-            mouse_movment_count = len(mouse_movement_data)
+            mouse_angle_std = self._get_angle_std(mouse_movement_data)
+            mouse_movement_count = len(mouse_movement_data)
+
             return {
                 self.config.velocity_std: velocity_std,
                 self.config.velocity_avg: velocity_avg,
                 self.config.pixel_per_movement: px_ms,
-                self.config.movement_cont: mouse_movment_count,
+                self.config.movement_cont: mouse_movement_count,
+                self.config.mouse_angle_std: mouse_angle_std,
             }
         except Exception as e:
             logger.error(
@@ -56,6 +59,35 @@ class MouseMovementProcessor(BaseFeatureEngineer):
         except (ValueError, TypeError) as e:
             logger.error(f"Error parsing timestamp : {str(e)}")
             return np.nan
+
+    def _get_angle_std(self, mouse_movements: List[Dict]) -> float:
+        """Calculate the standard deviation of the angles between consecutive points."""
+        if not mouse_movements:
+            logger.warning(
+                "Empty mouse movement data to compute angle standard deviation"
+            )
+            return 0
+        try:
+            valid_movements = [m for m in mouse_movements if m is not None]
+            if len(valid_movements) < self.config.min_movements_required:
+                return 0
+            valid_movements = sorted(
+                valid_movements, key=lambda x: parse(x["timestamp"])
+            )
+
+            x_coords = np.array(
+                [m.get(self.config.fields["x"]) for m in valid_movements]
+            )
+            y_coords = np.array(
+                [m.get(self.config.fields["y"]) for m in valid_movements]
+            )
+
+            angles = np.arctan2(y_coords, x_coords) * 180 / np.pi
+
+            return np.nanstd(angles)
+        except Exception as e:
+            logger.error(f"Error in angle standard deviation computation: {str(e)}")
+            return 0
 
     def _compute_velocity(self, mouse_movements: List[Dict]) -> List[float]:
         """Compute velocities from mouse movement data."""
@@ -162,7 +194,9 @@ class MouseMovementProcessor(BaseFeatureEngineer):
             or len(mouse_movements) == 0
             or len(click_data) >= len(mouse_movements)
         ):
-            logger.warning("No mouse movements or exactly bot-like behavior. Not enough movements or ...")
+            logger.warning(
+                "No mouse movements or exactly bot-like behavior. Not enough movements or ..."
+            )
             return 0
         mouse_movements = self.load_mouse_data(mouse_movements)
 

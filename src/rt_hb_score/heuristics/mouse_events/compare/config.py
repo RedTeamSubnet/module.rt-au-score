@@ -7,7 +7,7 @@ class ArgCompareConfig(BaseModel):
     metrics: dict[str, dict] = Field(
         default={"location": {"x": "x", "y": "y"}}, description="Metrics for location"
     )
-    tolerance: int = Field(default=15, description="Tolerance for location matching")
+    tolerance: float = Field(default=15, description="Tolerance for location matching")
     mouse_clicks: str = Field(
         default="mouse_clicks", description="Key for mouse clicks"
     )

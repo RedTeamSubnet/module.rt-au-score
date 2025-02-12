@@ -37,11 +37,20 @@ class MouseEventAnalyzer:
                 return {
                     "bot_behavior": {"score": 1.0, "weight": 1.0},
                 }
+            if features[self.config.mouse_movement_count] < self.config.mouse_movements_very_low:
+                logger.warning("Bot did not move enough")
+                return {
+                    "bot_behavior": {"score": 1.0, "weight": 1.0},
+                }
+            logger.debug("Checking `Velocity` of bot")
             velocity_score: dict = self.velocity_analyzer(features)
+            logger.debug("Checking `Movement Count` of bot")
             movement_count_score: dict = self.movement_count_analyzer(features)
+            logger.debug("Checking `Clicks`' path of bot")
             checkbox_path_score: dict = self.checkbox_path_analyzer(features)
+            logger.debug("Finished Checking")
             mouse_down_getter = features.get(self.config.mouse_down_check, 1)
-            return {
+            scores = {
                 self.config.velocity_std: {
                     "score": velocity_score.get(self.config.velocity_std, 1.0),
                     "weight": self.config.velocity_std_weight,
@@ -66,11 +75,20 @@ class MouseEventAnalyzer:
                     ),
                     "weight": self.config.checkbox_path_weight,
                 },
-                self.config.mouse_down_check: {
-                    "score": mouse_down_getter,
-                    "weight": self.config.mouse_down_weight,
+                self.config.overall_session_angle_std: {
+                    "score": movement_count_score.get(
+                        self.config.overall_session_angle_std, 1.0
+                    ),
+                    "weight": self.config.overall_session_angle_std_weight,
                 },
             }
+            if mouse_down_getter > 0:
+                logger.warning("Bot failed in single down check")
+                scores[self.config.mouse_down_check] = {
+                    "score": 1,  # if bot failed in single mouse down check then get 1 otherwise 0
+                    "weight": 1.0,
+                }
+            return scores
 
         except Exception as e:
             logger.error(f"Error in checking mouse event analysis: {str(e)}")
